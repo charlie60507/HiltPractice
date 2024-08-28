@@ -32,6 +32,20 @@ private const val CODE_LOGS_ITEM = 2
  */
 class LogsContentProvider: ContentProvider() {
 
+    @InstallIn(SingletonComponent::class)
+    @EntryPoint
+    interface LogsContentProviderEntryPoint {
+        fun logDao(): LogDao
+    }
+
+    private fun getLogDao(appContext: Context): LogDao {
+        val hiltEntryPoint = EntryPointAccessors.fromApplication(
+            appContext,
+            LogsContentProviderEntryPoint::class.java
+        )
+        return hiltEntryPoint.logDao()
+    }
+
     private val matcher: UriMatcher = UriMatcher(UriMatcher.NO_MATCH).apply {
         addURI(AUTHORITY, LOGS_TABLE, CODE_LOGS_DIR)
         addURI(AUTHORITY, "$LOGS_TABLE/*", CODE_LOGS_ITEM)
